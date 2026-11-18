@@ -21,3 +21,10 @@ OpenTelemetry span durations are recorded in nanoseconds, but presenting them ra
 The formatter truncates toward zero rather than rounding. A duration of 1.999 seconds becomes `1s`, not `2s`. This is intentional: span durations are measurements, and truncation avoids implying more precision than the underlying integer nanoseconds provide. If you need rounding, apply it before calling `formatDuration`.
 
 Negative values, non-integers, and values outside the safe integer range throw a `TypeError`, because silently coercing them would hide data-quality problems upstream.
+
+## Design notes
+
+The window stores values eagerly rather than keeping running aggregates. Running
+sums drift with floating point over long streams, and recomputing from a small
+buffer is cheap enough that the drift is not worth the speed.
+
